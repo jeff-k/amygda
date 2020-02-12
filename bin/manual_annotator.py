@@ -62,9 +62,11 @@ def run(fp):
     
     return b_circs
 
+# this sloppy mess is gonna be replaced
+num = random.randint(10000,99999)
+out_file = f"plate_ground_truth-{num}.csv"
+
 def save_rows(calls):
-    num = random.randint(10000,99999)
-    out_file = f"plate_ground_truth-{num}.csv"
     with open(out_file, 'w') as out_fd:
         for c in calls:
             print(c, file=out_fd)
@@ -128,6 +130,9 @@ if __name__ == "__main__":
         segments = segment(cs, img)
         while well_no < len(segments):
             name, well = segments[well_no]
+            if hp % 10 == 0 and hp > 0:
+                save_rows(calls)
+
             flags = set([])
             while True:
                 p4 = cv.getTrackbarPos('well shadow', GAME_TITLE)
