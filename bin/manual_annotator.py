@@ -199,6 +199,13 @@ if __name__ == "__main__":
                     else:
                         flags.add('COND')
 
+                elif key == ord('d'):
+                    if 'DRY' in flags:
+                        flags.remove('DRY')
+                    else:
+                        flags.add('DRY')
+
+
                 elif key == ord('n'):
                     flags = ':'.join(flags)
                     call = f"{fp},{name},{p1},{p2},{area_thresh},{total_area},{n_contours},PASS,{flags}"
