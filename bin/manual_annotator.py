@@ -101,9 +101,10 @@ if __name__ == "__main__":
     if len(sys.argv) > 1:
         imgs = glob.glob(sys.argv[1])
     else:
-        imgs = glob.glob("../examples/sample-images/*/image-*-raw.png")
+        imgs = glob.glob("examples/sample-images/*/image-*-raw.png")
     
-    cv.namedWindow(GAME_TITLE)
+    cv.namedWindow(GAME_TITLE, cv.WINDOW_GUI_NORMAL)
+#    cv.setWindowProperty(GAME_TITLE, cv.CV_WND_PROP_AUTOSIZE, cv.CV_WINDOW_NORMAL)
     i = 0
 
     cv.createTrackbar('p1', GAME_TITLE, 3, 20, null_fn)
