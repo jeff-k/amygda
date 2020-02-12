@@ -127,6 +127,7 @@ if __name__ == "__main__":
         segments = segment(cs, img)
         while well_no < len(segments):
             name, well = segments[well_no]
+            flags = set([])
             while True:
                 p4 = cv.getTrackbarPos('well shadow', GAME_TITLE)
                 if p4 < 1:
@@ -175,27 +176,46 @@ if __name__ == "__main__":
 
                 font = cv.FONT_HERSHEY_SIMPLEX
                 img_blnk = cv.putText(img_blnk, str(total_area), (0, img_blnk.shape[1] - 5), font, 0.7, (0, 255, 0), 1)#, cv.LINE_AA)
+                img_blnk = cv.putText(img_blnk, ','.join(flags), (0, 12), font, 0.5, (0, 0, 255), 1)#, cv.LINE_AA)
+
 
                 cv.imshow(GAME_TITLE, img_blnk)
 
                 key = cv.waitKey(1)
                 if key == 27:
                     save_rows(calls)
-                    exit()    
+                    exit()
+
+                elif key == ord('b'):
+                    if 'BUBBLE' in flags:
+                        flags.remove('BUBBLE')
+                    else:
+                        flags.add('BUBBLE')
+
+                elif key == ord('c'):
+                    if 'COND' in flags:
+                        flags.remove('COND')
+                    else:
+                        flags.add('COND')
+
                 elif key == ord('n'):
-                    call = f"{fp},{name},{p1},{p2},{area_thresh},{total_area},{n_contours},PASS"
+                    flags = ':'.join(flags)
+                    call = f"{fp},{name},{p1},{p2},{area_thresh},{total_area},{n_contours},PASS,{flags}"
                     calls.append(call)
                     well_no += 1
                     hp += 1
                     status(calls)
                     break
+ 
                 elif key == ord('f'):
-                    call = f"{fp},{name},{p1},{p2},{area_thresh},{total_area},{n_contours},FAIL"
+                    flags = ':'.join(flags)
+                    call = f"{fp},{name},{p1},{p2},{area_thresh},{total_area},{n_contours},FAIL,{flags}"
                     calls.append(call)
                     well_no += 1
                     hp += 1
                     status(calls)
                     break
+
                 elif key == ord('p'):
                     calls = calls[:-1]
                     well_no -= 1
