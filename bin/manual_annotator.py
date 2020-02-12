@@ -25,7 +25,7 @@ def score(radii):
 game_items = ['🧲', '🐚', '🦷', '🦴', '🗿', '🍍', '🥀']
 items = []
 hp = 0
-GAME_TITLE = 'Consumption Crush'
+GAME_TITLE = 'Bug Lasso'
 
 def status(calls):
     os.system('clear')
@@ -108,12 +108,14 @@ if __name__ == "__main__":
 
     cv.createTrackbar('p1', GAME_TITLE, 3, 20, null_fn)
     cv.createTrackbar('p2', GAME_TITLE, 3, 20, null_fn)
-    cv.createTrackbar('p3', GAME_TITLE, 0, 500, null_fn)
-    cv.createTrackbar('p4', GAME_TITLE, 10, 70, null_fn)
+    cv.createTrackbar('min growth', GAME_TITLE, 0, 500, null_fn)
+    cv.createTrackbar('well shadow', GAME_TITLE, 10, 70, null_fn)
+
+    # default positions
     cv.setTrackbarPos('p1', GAME_TITLE, 17)
     cv.setTrackbarPos('p2', GAME_TITLE, 6)
-    cv.setTrackbarPos('p3', GAME_TITLE, 28)
-    cv.setTrackbarPos('p4', GAME_TITLE, 14)
+    cv.setTrackbarPos('min growth', GAME_TITLE, 28)
+    cv.setTrackbarPos('well shadow', GAME_TITLE, 14)
    
     calls = []
     while i < len(imgs):
@@ -126,7 +128,7 @@ if __name__ == "__main__":
         while well_no < len(segments):
             name, well = segments[well_no]
             while True:
-                p4 = cv.getTrackbarPos('p4', GAME_TITLE)
+                p4 = cv.getTrackbarPos('well shadow', GAME_TITLE)
                 if p4 < 1:
                     p4=1
                 b = 20
@@ -156,7 +158,7 @@ if __name__ == "__main__":
                 if p1 < 3:
                     p1 = 3
                 p2 = cv.getTrackbarPos('p2', GAME_TITLE)
-                area_thresh = cv.getTrackbarPos('p3', GAME_TITLE)
+                area_thresh = cv.getTrackbarPos('min growth', GAME_TITLE)
                 blnk = cv.adaptiveThreshold(blnk, 255, cv.ADAPTIVE_THRESH_GAUSSIAN_C, cv.THRESH_BINARY, p1, p2)
                 mask = np.zeros(well2.shape, np.uint8)
 
@@ -170,6 +172,10 @@ if __name__ == "__main__":
                         total_area += area
                         n_contours += 1
                        #break
+
+                font = cv.FONT_HERSHEY_SIMPLEX
+                img_blnk = cv.putText(img_blnk, str(total_area), (0, img_blnk.shape[1] - 5), font, 0.7, (0, 255, 0), 1)#, cv.LINE_AA)
+
                 cv.imshow(GAME_TITLE, img_blnk)
 
                 key = cv.waitKey(1)
