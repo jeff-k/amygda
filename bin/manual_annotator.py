@@ -80,7 +80,7 @@ def segment(cs, img):
     b = 40
     img = cv.copyMakeBorder(img, b, b, b, b, cv.BORDER_CONSTANT, 0)
     wells = []
-
+    origs = []
     # wells are named in order: A1, A2, ..., B1, B2, ..., H12
     names = [f"{row}{column}" for column in range(1,13) for row in "ABCDEFGH"]
 
@@ -93,8 +93,9 @@ def segment(cs, img):
         well = img[y-r:y+r, x-r:x+r]
         circle = np.zeros((r*2, r*2), np.uint8)
         cv.circle(circle, (r, r), r-3, 255, thickness=-1)
+        origs.append((name, well.copy()))
         wells.append((name, cv.bitwise_and(well, well, mask=circle)))
-    return wells
+    return wells, origs
 
 if __name__ == "__main__":
 
@@ -127,9 +128,10 @@ if __name__ == "__main__":
         img = cv.imread(fp)
         cs = run(fp)
         well_no = 0 
-        segments = segment(cs, img)
+        segments, origs = segment(cs, img)
         while well_no < len(segments):
             name, well = segments[well_no]
+            name, orig = origs[well_no]
             if hp % 10 == 0 and hp > 0:
                 save_rows(calls)
 
@@ -172,20 +174,23 @@ if __name__ == "__main__":
                 contours = cv.findContours(blnk, cv.RETR_TREE, cv.CHAIN_APPROX_SIMPLE)
                 total_area = 0
                 n_contours = 0
+                empty = np.zeros(well2.shape)
                 for c in contours[0]:
                     area = cv.contourArea(c)
                     if area > area_thresh and area < 500:
-                        cv.drawContours(img_blnk, [c], -1, (0, 255, 0), 1)
+                        cv.fillPoly(empty, pts=[c], color=(255,255,255))
+                        #cv.drawContours(img_blnk, [c], -1, (0, 255, 0), 1)
                         total_area += area
                         n_contours += 1
                        #break
 
                 font = cv.FONT_HERSHEY_SIMPLEX
-                img_blnk = cv.putText(img_blnk, str(total_area), (0, img_blnk.shape[1] - 5), font, 0.7, (0, 255, 0), 1)#, cv.LINE_AA)
-                img_blnk = cv.putText(img_blnk, ','.join(flags), (0, 12), font, 0.5, (0, 0, 255), 1)#, cv.LINE_AA)
+                #img_blnk = cv.putText(img_blnk, str(total_area), (0, img_blnk.shape[1] - 5), font, 0.7, (0, 255, 0), 1)#, cv.LINE_AA)
+                #img_blnk = cv.putText(img_blnk, ','.join(flags), (0, 12), font, 0.5, (0, 0, 255), 1)#, cv.LINE_AA)
 
 
-                cv.imshow(GAME_TITLE, img_blnk)
+                cv.imshow(GAME_TITLE, empty)
+
 
                 key = cv.waitKey(1)
                 if key == 27:
@@ -218,6 +223,8 @@ if __name__ == "__main__":
                     well_no += 1
                     hp += 1
                     status(calls)
+                    cv.imwrite(f"well-{name}-raw.png", orig)
+                    cv.imwrite(f"well-{name}-mask.png", empty)
                     break
  
                 elif key == ord('f'):
