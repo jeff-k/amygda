@@ -107,6 +107,36 @@ def load_dataframe(output_csv_filepath):
         calls_csv.index.name = "well_path"
         return calls_csv
 
+def get_contours(well, contour_thickness, white_noise, min_area_thresh, max_area_thresh):
+
+    well_gray_with_border = cv.cvtColor(well, cv.COLOR_BGR2GRAY)
+    well_gray_with_border = cv.copyMakeBorder(well_gray_with_border, b, b, b, b, cv.BORDER_CONSTANT, 0)
+    well_gray_with_border = mask_circles(well_gray_with_border, well_shadow)
+    binarized_image = well_gray_with_border.copy()
+    binarized_image = cv.adaptiveThreshold(binarized_image, 255, cv.ADAPTIVE_THRESH_GAUSSIAN_C, cv.THRESH_BINARY, contour_thickness, white_noise)
+    static_well_image = well.copy()
+
+    well_with_border = cv.copyMakeBorder(well, b, b, b, b, cv.BORDER_CONSTANT, 0)
+    static_well_with_border = cv.copyMakeBorder(well, b, b, b, b, cv.BORDER_CONSTANT, 0)
+    binarized_image_with_color = cv.cvtColor(binarized_image, cv.COLOR_GRAY2BGR)
+
+    # find and draw contours
+    contours = cv.findContours(binarized_image, cv.RETR_TREE, cv.CHAIN_APPROX_NONE)[0]
+    total_area = 0
+    n_contours = 0
+    color_index = 0
+
+    good_contours = []
+    for cnt in contours:
+        area = cv.contourArea(cnt)
+        contour_has_good_area = area >= min_area_thresh and area <= max_area_thresh
+        if contour_has_good_area and not is_a_forbidden_contours(cnt):
+            color_index, color = get_color(color_index)
+            cv.drawContours(well_with_border, [cnt], -1, color, 1)
+            total_area += area
+            n_contours += 1
+            good_contours.append(cnt)
+    return good_contours
 
 
 if __name__ == "__main__":
@@ -163,36 +193,7 @@ if __name__ == "__main__":
             max_area_thresh = cv.getTrackbarPos('Max growth', GAME_TITLE)
 
 
-
-            well_gray_with_border = cv.cvtColor(well, cv.COLOR_BGR2GRAY)
-            well_gray_with_border = cv.copyMakeBorder(well_gray_with_border, b, b, b, b, cv.BORDER_CONSTANT, 0)
-            well_gray_with_border = mask_circles(well_gray_with_border, well_shadow)
-            binarized_image = well_gray_with_border.copy()
-            binarized_image = cv.adaptiveThreshold(binarized_image, 255, cv.ADAPTIVE_THRESH_GAUSSIAN_C, cv.THRESH_BINARY, contour_thickness, white_noise)
-            static_well_image = well.copy()
-
-
-            well_with_border = cv.copyMakeBorder(well, b, b, b, b, cv.BORDER_CONSTANT, 0)
-            static_well_with_border = cv.copyMakeBorder(well, b, b, b, b, cv.BORDER_CONSTANT, 0)
-            binarized_image_with_color = cv.cvtColor(binarized_image, cv.COLOR_GRAY2BGR)
-
-
-            # find and draw contours
-            contours = cv.findContours(binarized_image, cv.RETR_TREE, cv.CHAIN_APPROX_NONE)[0]
-            total_area = 0
-            n_contours = 0
-            color_index = 0
-
-            good_contours = []
-            for cnt in contours:
-                area = cv.contourArea(cnt)
-                contour_has_good_area = area >= min_area_thresh and area <= max_area_thresh
-                if contour_has_good_area and not is_a_forbidden_contours(cnt):
-                    color_index, color = get_color(color_index)
-                    cv.drawContours(well_with_border, [cnt], -1, color, 1)
-                    total_area += area
-                    n_contours += 1
-                    good_contours.append(cnt)
+            good_contours = get_contours(well, contour_thickness, white_noise, min_area_thresh, max_area_thresh)
 
 
             # write info to images
