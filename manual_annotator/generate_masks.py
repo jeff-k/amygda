@@ -15,7 +15,7 @@ for well, training_row in zip(wells, training_data) # synchronise well images an
     # resolve whether user has removed contours
     if len(contours) != n_contours:
         discrepancy = growth_area - sum(contours) # what is the missing area
-        for x in choose(n_contours - contours, contours):
+        for x in choose(n_contours - len(contours), contours):
             # choose sets of contours from the amount that are missing
             sum(x) == discrepancy?
 
