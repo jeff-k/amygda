@@ -1,4 +1,6 @@
 """Replay manual annotation output to generate bit masks
+
+you can flip and rotate the masks for 8x the training data too
 """
 
 import manual_annotator
