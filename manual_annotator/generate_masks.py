@@ -1,6 +1,6 @@
 """Replay manual annotation output to generate bit masks
 
-you can flip and rotate the masks for 8x the training data too
+you can flip and rotate the masks for 8x the training data here too
 """
 
 import manual_annotator
@@ -11,6 +11,17 @@ training_data = # training_data.csv
 for well, training_row in zip(wells, training_data) # synchronise well images and rows of training data
     # parse the training data
     contour_thickness, white_noise, min_area_thresh, max_area_thresh, growth_area, n_contours = training_row
+
+    def sum(contours):
+        # note that our definition of growth_area considers min/max area thresholds
+        total = 0
+        for contour in contours
+            if > max thresh
+                continue
+            if < min thresh
+                continue
+        return total
+
 
     contours = manual_annotator.get_contours(well, contour_thickness, white_noise, min_area_thresh, max_area_thresh):
 
