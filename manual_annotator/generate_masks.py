@@ -8,18 +8,17 @@ training_data = # training_data.csv
 
 for well, training_row in zip(wells, training_data) # synchronise well images and rows of training data
     # parse the training data
-    contour_thickness, white_noise, min_area_thresh, max_area_thresh, growth_area = training_row
+    contour_thickness, white_noise, min_area_thresh, max_area_thresh, growth_area, n_contours = training_row
 
     contours = manual_annotator.get_contours(well, contour_thickness, white_noise, min_area_thresh, max_area_thresh):
 
     # resolve whether user has removed contours
     if len(contours) != n_contours:
         discrepancy = growth_area - sum(contours) # what is the missing area
-        for x in choose(n_contours - len(contours), contours):
-            # choose sets of contours from the amount that are missing
-            sum(x) == discrepancy?
-
-    contours = the proper set of contours
+        for m_subset in choose(len(contours) - n_contours, contours):
+            # choose sets of m contours from the amount that are missing
+            sum(m_subset) == discrepancy?
+                remove these m contours from contours
 
     # generate the mask by drawing and filling the contours:
     mask = np.zeros(well.shape) # make empty bitmask
