@@ -1,0 +1,74 @@
+
+
+
+Next version (prototype_v0.0.2):
+    - Use texture with PCA to check if we can differentiate growth from other stuff
+        - see https://scikit-image.org/docs/dev/auto_examples/features_detection/plot_glcm.html
+
+    - TLDR:
+        - The main features of this version are:
+            1) Correct growth miscalculation in control wells;
+            2) Use the control wells to: a) infer the bacteria's growth pattern; and b) to correct black pixel thresholding value;
+        - Deadline: 28th feb;
+
+    - Main steps:
+        1. Correct growth miscalculation in control wells;
+            1. Both control wells should have at least 80% of the median growth of low concentration wells;
+                - don't use average or max, due to no growth/contamination in low concentration wells;
+                - This can be done by increasing the black pixel threshold incrementally in cv2.threshold() when recognizing growth in control wells;
+            2. Both control wells should have similar growth values
+                - Contamination can induce very different growth values
+
+                - if the difference is >= 20%:
+                    -error out and ask for manual inspection
+                else:
+                    - while both control wells do not have similar growth:
+                        - decrease black pixel threshold of the one with high growth by 5;
+                        - increase black pixel threshold of the one with low growth by 5;
+
+        2. Use the control and low concentration wells to infer the growth pattern of the plate;
+            1. 3 simple growth patterns for now (see below "To test" item for a better growth pattern to model dispersion):
+                - Noise removal is needed here (remove very small contours)
+                1.1. Dispersed (several small contours);
+                1.2. Concentrated (few large contours, no small ones);
+                1.3. Both (several small contours and few large ones);
+                1.4. each control/low concentration well cast 1 vote. control wells votes are worth 1.25 (smallest growth) and 1.5 (highest growth) to reduce draws;
+                1.5. most voted growth pattern is elected;
+
+            2. When analysing each well:
+                growth_pattern = Calculate growth pattern with default parameters;
+                if growth_pattern is not what we expect:
+                    if growth_pattern is dispersed and there one single large contour (very concentrated growth pattern):
+                        - this is noise, most cases is condensation, return growth 0
+
+                    if growth_pattern is a lot more disperse than what we expect and bubble filter is not applied:
+                        apply bubble filter;
+                        restart;
+
+                    if growth_pattern is a lot more disperse than what we expect and bubble filter is already applied:
+                        decrease black pixel threshold
+                        restart;
+
+        3. Use the control wells to infer the appropriate black pixel threshold when evaluating one well:
+                1. while growth is a lot larger than the two control wells:
+                    decrease black pixel threshold;
+
+
+
+    - To test:
+        - dispersion can be measured as the ratio of the area of all growth contours (i.e. nb of black pixels) over the convex hulls of the growth contours;
+            - Note that it is the convex hull over the contours, not the less noisy convex hull
+            - noise removal must be performed here
+                - remove very small contours
+                - remove contours on the border that might be noise
+            - reference? https://arxiv.org/abs/1605.05983
+            - this gives a dispersion ration between 0 (very dispersed) and 1 (very concentrated) - it is a better model than what is written in main steps
+        - central blob
+            Get the most central blob (the blob such that the distance to all other blobs is the smallest). Assume growth started from this central blob. Dispersion can be measured as the sum of the distance of the central blob to all other blobs, use centroid to compute distance
+
+    - Get several features of a blob (i.e. HU moments and https://scikit-image.org/docs/dev/api/skimage.measure.html#skimage.measure.regionprops, shannon entropy, etc) and do PCA or sth else?
+        -i.e. https://content.iospress.com/articles/bio-medical-materials-and-engineering/bme1426
+        - https://www.sciencedirect.com/science/article/pii/S2590156720300013?via%3Dihub
+
+
+    - see https://www.thibault.biz/Doc/Publications/PosterWSCG2008_V4.pdf

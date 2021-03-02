@@ -1,0 +1,18 @@
+- Cutting histogram
+    - use a hard threshold based on sample images
+    - Kerri
+
+- For bubbles and condensation, flagging wells potentially having them is enough for now
+    - Tomorrow (both)
+    - A better approach (for later):
+        - http://www.huyaoyu.com/technical/2017/12/13/bubble-detection-by-using-opencv.html
+
+- cut histogram based on threshold and normalize the growth
+    - Tomorrow (both)
+
+- Calculate growth, annotate growth in the image, add info that is pertinent to the report, and output a txt file with growth in each well
+    - first version
+    - Tomorrow (both)
+
+- Validation step
+    - Kerri

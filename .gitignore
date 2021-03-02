@@ -112,3 +112,23 @@ ENV/
 .mypy_cache/
 
 *~
+
+examples
+examples_backup
+.snakemake
+.idea
+.ipynb_checkpoints
+bin/well_dir/
+
+bin/translation\.csv
+
+create_split_well_images/split_well_images/
+
+create_participants_dataset/data/
+
+bin/data/
+
+create_participants_dataset/data_filtered/
+
+participants_dataset
+manual_annotator/participants_datasets/

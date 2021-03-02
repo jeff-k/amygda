@@ -1,6 +1,6 @@
 #! /usr/bin/env python
 
-import amygda
+from amygda.core import PlateMeasurement
 import argparse, numpy
 from scipy import stats
 
@@ -30,7 +30,7 @@ else:
 assert options.plate_design in ['UKMYC5','UKMYC6','GPALL1F','CHNMCMM2'], "this plate design is not recognised"
 
 # create a new measurement
-plate=amygda.PlateMeasurement(image_path,categories={'ImageFileName':image_name},configuration_path="config/",pixel_intensities=False,plate_design=options.plate_design)
+plate=PlateMeasurement(image_path,categories={'ImageFileName':image_name},configuration_path="config/",pixel_intensities=False,plate_design=options.plate_design)
 
 # create the path for the output images
 plate_stem=plate.abspath+plate.image_name
@@ -56,23 +56,23 @@ plate.categories['IM_IMAGE_DOWNLOADED']=True
 # apply a mean shift filter to smooth the background colours
 plate.mean_shift_filter()
 
-plate.save_image("-msf.jpg")
+plate.save_image("-msf.png")
 
 # apply the local histogram equalisation method to improve contrast
 plate.equalise_histograms_locally()
 
-plate.save_image("-clahe.jpg")
+plate.save_image("-clahe.png")
 
 plate.stretch_histogram(debug=False)
 
 # save the filtered image
-plate.save_image("-filtered.jpg")
+plate.save_image("-filtered.png")
 
 # record that this image has been filtered
 plate.categories['IM_IMAGE_FILTERED']=True
 
 # load in the photo of the plate
-plate.load_image("-filtered.jpg")
+plate.load_image("-filtered.png")
 
 # attempt to segment the wells
 if plate.identify_wells(hough_param1=20,hough_param2=25,radius_tolerance=0.005,verbose=False):
@@ -92,10 +92,10 @@ if plate.identify_wells(hough_param1=20,hough_param2=25,radius_tolerance=0.005,v
     plate.annotate_well_drugs_concs(color=black,fontsize=0.5)
 
     # add squares where the algorithm has detected growth
-    plate.annotate_well_analysed_region(growth_color=yellow,region=options.measured_region,thickness=3)
+    # plate.annotate_well_analysed_region(growth_color=yellow,region=options.measured_region,thickness=3)
 
     # save the final image with wells with identified growth marked by red squares
-    plate.save_image("-growth.jpg")
+    plate.save_image("-growth.png")
 
     # write the MICs to a simple plaintext file (they are stored in the JSON file but this is harder to read)
     plate.write_mics("-mics.txt")
