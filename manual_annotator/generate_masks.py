@@ -16,10 +16,12 @@ for well, training_row in zip(wells, training_data) # synchronise well images an
         # note that our definition of growth_area considers min/max area thresholds
         total = 0
         for contour in contours
-            if > max thresh
+            area = cv.contourArea(contour) # calculate area of contour
+            if area > max thresh
                 continue
-            if < min thresh
+            if area < min thresh
                 continue
+            total += area
         return total
 
 
